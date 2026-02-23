@@ -97,16 +97,16 @@ function VigorModule:BuildUI()
 
     
     --------------------------------------------------
-    -- Vigor Frame Textures (Borders)
+    -- Vigor Border Textures
     --------------------------------------------------
-    self.frames = {}
+    self.borders = {}
     for i = 1, maxCharges do
         -- Create border/frame for each vigor slot
-        local frame = self.vigorFrame:CreateTexture(nil, "OVERLAY")
-        frame:SetAtlas("dragonriding_vigor_frame")
-        frame:SetSize(60, 65) 
-        frame:SetPoint("CENTER", self.backgrounds[i], "CENTER")
-        table.insert(self.frames, frame)
+        local border = self.vigorFrame:CreateTexture(nil, "OVERLAY")
+        border:SetAtlas("dragonriding_vigor_frame")
+        border:SetSize(60, 65) 
+        border:SetPoint("CENTER", self.backgrounds[i], "CENTER")
+        table.insert(self.borders, border)
     end
 
     --------------------------------------------------
@@ -157,18 +157,39 @@ end
 -- Apply UI Settings
 --------------------------------------------------
 function VigorModule:Refresh()
-    local db = SkyridingUI.db.profile
+    local profile = SkyridingUI.db.profile
 
     -- Apply scale and position from saved settings
-    self.baseScale = db.scale or 1
+    self.baseScale = profile.scale
     self.vigorFrame:SetScale(self.baseScale)
     self.vigorFrame:ClearAllPoints()
-    self.vigorFrame:SetPoint("CENTER", UIParent, "CENTER", db.posX, db.posY)
+    self.vigorFrame:SetPoint("CENTER", UIParent, "CENTER", profile.posX, profile.posY)
     self:UpdateDragState()
     
     -- Show or hide rightDecor based on settings
-    if self.rightDecor then self.rightDecor:SetShown(db.modules.vigor.showVigorDecor) end
-    if self.leftDecor then self.leftDecor:SetShown(db.modules.vigor.showVigorDecor) end
+    if self.rightDecor then self.rightDecor:SetShown(profile.modules.vigor.showVigorDecor) end
+    if self.leftDecor then self.leftDecor:SetShown(profile.modules.vigor.showVigorDecor) end
+
+    -- Apply color tint settings
+    local vigorColor = profile.modules.vigor.colorVigor
+    for _, fill in ipairs(self.fills) do
+        fill:SetVertexColor(vigorColor.r, vigorColor.g, vigorColor.b, vigorColor.a)
+    end
+    for _, fullfill in ipairs(self.fullfills) do
+        fullfill:SetVertexColor(vigorColor.r, vigorColor.g, vigorColor.b, vigorColor.a)
+    end
+    for _, pulse in ipairs(self.pulses) do
+        local pulseTexture = pulse:GetRegions()
+        if pulseTexture then
+            pulseTexture:SetVertexColor(vigorColor.r, vigorColor.g, vigorColor.b, vigorColor.a)
+        end
+    end
+
+    -- Apply border color tint settings
+    local borderColor = profile.modules.vigor.colorBorderVigor
+    for _, border in ipairs(self.borders) do
+        border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a)
+    end
 end
 
 --------------------------------------------------
@@ -259,7 +280,7 @@ function VigorModule:UpdateState()
                 
             -- Check if this slot was previously not full → trigger pulse
             if not self.previousFullCharges[i] then
-                PulseAnimationModule:PulseAlphaOnce(self.pulses[i], 1)
+                PulseAnimationModule:PulseAlphaOnce(self.pulses[i], 0.75)
             end
             
             self.previousFullCharges[i] = true
@@ -269,7 +290,7 @@ function VigorModule:UpdateState()
             local progress = (now - start) / duration
             progress = math.min(progress, 1)
 
-            fullfill:SetAlpha(0.25)
+            fullfill:SetAlpha(0)
             fill:SetAlpha(1)
 
             -- Fill from bottom to top based on recharge progress

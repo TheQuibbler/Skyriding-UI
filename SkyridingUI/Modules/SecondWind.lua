@@ -81,7 +81,6 @@ function SecondWindModule:BuildUI()
         fullfill:SetAtlas("dragonriding_sgvigor_fillfull")
         fullfill:SetSize(32, 50)
         fullfill:SetPoint("BOTTOM", self.backgrounds[i], "BOTTOM")
-        fullfill:SetVertexColor(0.8, 0.8, 0.8) -- Slightly off-white tint
         fullfill:SetAlpha(0)
         table.insert(self.fullfills, fullfill)
     end
@@ -103,16 +102,15 @@ function SecondWindModule:BuildUI()
     end
 
     --------------------------------------------------
-    -- SecondWind Frame Textures (Borders)
+    -- SecondWind Border Textures
     --------------------------------------------------
-    self.frames = {}
+    self.borders = {}
     for i = 1, maxCharges do
         -- Create border/frame for each SecondWind slot
-        local frame = self.secondWindFrame:CreateTexture(nil, "OVERLAY")
-        frame:SetAtlas("dragonriding_sgvigor_frame_dark")
-        frame:SetSize(34.5, 52.5)
-        frame:SetPoint("CENTER", self.backgrounds[i], "CENTER")
-        table.insert(self.frames, frame)
+        local border = self.secondWindFrame:CreateTexture(nil, "OVERLAY")
+        border:SetSize(34.5, 52.5)
+        border:SetPoint("CENTER", self.backgrounds[i], "CENTER")
+        table.insert(self.borders, border)
     end
 
     --------------------------------------------------
@@ -120,7 +118,6 @@ function SecondWindModule:BuildUI()
     --------------------------------------------------
     self.pulses = {}
     for i = 1, maxCharges do
-        
         -- Create the pulse frame
         local pulseFrame = CreateFrame("Frame", nil, self.secondWindFrame)
         pulseFrame:SetSize(42, 60)  
@@ -151,10 +148,44 @@ function SecondWindModule:Refresh()
 
     -- Position the frame relative to vigorFrame
     self.secondWindFrame:SetPoint("TOP", SkyridingUI.modules["VigorModule"].vigorFrame, "BOTTOM", 0, 20)
+    
+    -- Apply texture based on setting
+    for _, border in pairs(self.borders) do
+        if profile.modules.optional.frameStyleSecondWind == "gold" then
+            border:SetAtlas("dragonriding_sgvigor_frame_gold")
+        elseif profile.modules.optional.frameStyleSecondWind == "silver" then
+            border:SetAtlas("dragonriding_sgvigor_frame_silver")
+        elseif profile.modules.optional.frameStyleSecondWind == "bronze" then
+            border:SetAtlas("dragonriding_sgvigor_frame_bronze")
+        else
+            border:SetAtlas("dragonriding_sgvigor_frame_dark")
+        end
+    end
 
     -- Apply scale
-    self.baseScale = profile.scale or 1
+    self.baseScale = profile.scale
     self.secondWindFrame:SetScale(self.baseScale)
+
+    -- Apply color tint settings
+    local secondWindColor = profile.modules.optional.colorSecondWind
+    for _, fill in ipairs(self.fills) do
+        fill:SetVertexColor(secondWindColor.r, secondWindColor.g, secondWindColor.b, secondWindColor.a)
+    end
+    for _, fullfill in ipairs(self.fullfills) do
+        fullfill:SetVertexColor(secondWindColor.r, secondWindColor.g, secondWindColor.b, secondWindColor.a)
+    end
+    for _, pulse in ipairs(self.pulses) do
+        local pulseTexture = pulse:GetRegions()
+        if pulseTexture then
+            pulseTexture:SetVertexColor(secondWindColor.r, secondWindColor.g, secondWindColor.b, secondWindColor.a)
+        end
+    end
+
+    -- Apply border color tint settings
+    local borderColor = profile.modules.optional.colorBorderSecondWind
+    for _, border in ipairs(self.borders) do
+        border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b, borderColor.a)
+    end
 end
 
 --------------------------------------------------
@@ -207,7 +238,7 @@ function SecondWindModule:UpdateState()
                 
             -- Check if this slot was previously not full → trigger pulse
             if not self.previousFullCharges[i] then
-                PulseAnimationModule:PulseAlphaOnce(self.pulses[i], 1)
+                PulseAnimationModule:PulseAlphaOnce(self.pulses[i], 0.75)
             end
             
             self.previousFullCharges[i] = true
@@ -217,7 +248,7 @@ function SecondWindModule:UpdateState()
             local progress = (now - start) / duration
             progress = math.min(progress, 1)
 
-            fullfill:SetAlpha(0.15)
+            fullfill:SetAlpha(0)
             fill:SetAlpha(1)
 
             -- Crop from bottom to top for progress

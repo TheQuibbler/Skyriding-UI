@@ -14,15 +14,36 @@ Libraries\AceConfig-3.0\AceConfigDialog-3.0\AceConfigDialog-3.0.lua
 Libraries\AceConsole-3.0\AceConsole-3.0.lua
 Libraries\AceGUI-3.0\AceGUI-3.0.lua
 
+# Default Setting object, needs to be initialized before Core
+DefaultSettings.lua
+
+# Addon Creation
 Core.lua
+
+# Modular Option Definitions
+Options\GlobalUISettings.lua
+Options\VigorSettings.lua
+Options\SecondWindSettings.lua
+Options\ProgressBars\SharedSettings.lua
+Options\ProgressBars\SpeedBar.lua
+Options\ProgressBars\SkywardAscent.lua
+Options\ProgressBars\WhirlingSurge.lua
+Options\Buffs\SharedSettings.lua
+Options\Buffs\ThrillOfTheSkiesSettings.lua
+Options\Buffs\GroundSkimmingSettings.lua
+
 Options.lua
 OptionsBlizzard.lua
-Modules\OnUpdateHandler.lua
-Modules\PulseAnimation.lua
+
+# Utilities
+Modules\Utilities\OnUpdateHandler.lua
+Modules\Utilities\PulseAnimation.lua
+
+# Module Implementations
 Modules\Vigor.lua
 Modules\SecondWind.lua
-Modules\ThrillOfTheSkies.lua
-Modules\GroundSkimming.lua
-Modules\SpeedBar.lua
-Modules\WhirlingSurge.lua
-Modules\SkywardAscent.lua
+Modules\Buffs\ThrillOfTheSkies.lua
+Modules\Buffs\GroundSkimming.lua
+Modules\ProgressBars\SpeedBar.lua
+Modules\ProgressBars\WhirlingSurge.lua
+Modules\ProgressBars\SkywardAscent.lua

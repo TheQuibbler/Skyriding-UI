@@ -1,19 +1,18 @@
 local addonName, _ = ...
 local SkyridingUI = LibStub("AceAddon-3.0"):GetAddon(addonName)
 
-local GroundSkimmingModule = SkyridingUI:NewModule("GroundSkimmingModule")
+local ThrillOfTheSkiesModule = SkyridingUI:NewModule("ThrillOfTheSkiesModule")
 local PulseAnimationModule = SkyridingUI:GetModule("PulseAnimationModule")
 
-local GROUND_SPELL_ID = 404184 -- Ground Skimming
 local THRILL_SPELL_ID = 377234 -- Thrill of the Skies
 
 --------------------------------------------------
 -- Initialization
 --------------------------------------------------
-function GroundSkimmingModule:OnInitialize()
-    self.groundSkimmingFrame = CreateFrame("Frame", "SkyridingUIGroundSkimmingFrame", UIParent)
-    self.groundSkimmingFrame:SetFrameStrata("MEDIUM")
-    self.groundSkimmingFrame:Hide()
+function ThrillOfTheSkiesModule:OnInitialize()
+    self.thrillOfTheSkiesFrame = CreateFrame("Frame", "SkyridingUIThrillOfTheSkiesFrame", UIParent)
+    self.thrillOfTheSkiesFrame:SetFrameStrata("MEDIUM")
+    self.thrillOfTheSkiesFrame:Hide()
 
     self.eventFrame = CreateFrame("Frame")
     self.eventFrame:SetScript("OnEvent", function()
@@ -26,32 +25,33 @@ end
 --------------------------------------------------
 -- Build UI
 --------------------------------------------------
-function GroundSkimmingModule:BuildUI()
+function ThrillOfTheSkiesModule:BuildUI()
     --------------------------------------------------
-    -- Ground Skimming textures
+    -- Thrill of the Skies textures
     --------------------------------------------------
     --- Left texture
-    self.left = self.groundSkimmingFrame:CreateTexture(nil, "OVERLAY")
+    self.left = self.thrillOfTheSkiesFrame:CreateTexture(nil, "OVERLAY")
     self.left:SetTexture(1028136)
-    self.left:SetSize(200, 200)    
+    self.left:SetSize(200, 200)
 
     --- Right texture (flipped)
-    self.right = self.groundSkimmingFrame:CreateTexture(nil, "OVERLAY")
+    self.right = self.thrillOfTheSkiesFrame:CreateTexture(nil, "OVERLAY")
     self.right:SetTexture(1028136)
     self.right:SetSize(200, 200)
     self.right:SetTexCoord(1, 0, 0, 1)
+    
 
     --------------------------------------------------
     -- Finalize UI
     --------------------------------------------------
-    self.groundSkimmingFrame:Hide()
+    self.thrillOfTheSkiesFrame:Hide()
     self:Refresh() -- Apply initial settings
 end
 
 --------------------------------------------------
 -- Apply UI Settings
 --------------------------------------------------
-function GroundSkimmingModule:Refresh()
+function ThrillOfTheSkiesModule:Refresh()
     local profile = SkyridingUI.db.profile
 
     -- Adjust position based on Vigor Decor
@@ -60,7 +60,7 @@ function GroundSkimmingModule:Refresh()
     if enabledDecor then 
         offset = 10
     end
-    
+
     self.left:SetPoint("CENTER", SkyridingUI.modules["VigorModule"].leftDecor, "LEFT", offset, 38)
     self.right:SetPoint("CENTER", SkyridingUI.modules["VigorModule"].rightDecor, "RIGHT", -offset, 38)
 
@@ -70,12 +70,11 @@ function GroundSkimmingModule:Refresh()
     self.leftBaseAnchor  = SkyridingUI.modules["VigorModule"].leftDecor
     self.rightBaseAnchor = SkyridingUI.modules["VigorModule"].rightDecor
 
-    -- Apply scale and position
-    self.baseScale = profile.scale or 1
-    self.groundSkimmingFrame:SetScale(self.baseScale)
+    -- Apply scale and color
+    self.baseScale = profile.scale
+    self.thrillOfTheSkiesFrame:SetScale(self.baseScale)
 
-    -- Apply color
-    local color = profile.modules.optional.colorGroundSkimming or {r=1, g=0.85, b=0, a=1}
+    local color = profile.modules.optional.colorThrillOfTheSkies or {r=1, g=1, b=1, a=1}
     self.left:SetVertexColor(color.r, color.g, color.b, color.a)
     self.right:SetVertexColor(color.r, color.g, color.b, color.a)
 end
@@ -83,12 +82,12 @@ end
 --------------------------------------------------
 -- Visibility
 --------------------------------------------------
-function GroundSkimmingModule:SetActive(active)
-    -- Show or hide the GroundSkimming frame based on 'active' and module enable setting
-    local show = active and SkyridingUI.db.profile.modules.optional.enableGroundSkimming
+function ThrillOfTheSkiesModule:SetActive(active)
+    -- Show or hide the thrilloftheskies frame based on 'active' and module enable setting
+    local show = active and SkyridingUI.db.profile.modules.optional.enableThrillOfTheSkies
 
     if show then
-        self.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+        self.eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")    
         self.eventFrame:RegisterUnitEvent("UNIT_AURA", "player")
         self:UpdateState()
     else
@@ -98,16 +97,15 @@ function GroundSkimmingModule:SetActive(active)
 end
 
 --------------------------------------------------
--- Update Ground Skimming Buff
+-- Update Thrill Of The Skies Buff
 --------------------------------------------------
-function GroundSkimmingModule:UpdateState()
-    local enabled = SkyridingUI.db.profile.modules.optional.enableGroundSkimming
+function ThrillOfTheSkiesModule:UpdateState()
+    local enabled = SkyridingUI.db.profile.modules.optional.enableThrillOfTheSkies
     if not enabled then return end
 
-    local groundBuff = C_UnitAuras.GetPlayerAuraBySpellID(GROUND_SPELL_ID)
-    local thrillBuff = C_UnitAuras.GetPlayerAuraBySpellID(THRILL_SPELL_ID)
+    local hasBuff = C_UnitAuras.GetPlayerAuraBySpellID(THRILL_SPELL_ID)
 
-    if (groundBuff and not thrillBuff) or SkyridingUI.db.profile.modules.optional.previewGroundSkimming then
+    if hasBuff or SkyridingUI.db.profile.modules.optional.previewThrillOfTheSkies or SkyridingUI.db.profile.modules.optional.preview then
         if not self.pulsing then
             self:StartPulse()
         end
@@ -119,7 +117,7 @@ end
 --------------------------------------------------
 -- Start Pulse Animation
 --------------------------------------------------
-function GroundSkimmingModule:StartPulse()
+function ThrillOfTheSkiesModule:StartPulse()
     if self.pulsing then return end
     self.pulsing = true
     
@@ -128,28 +126,29 @@ function GroundSkimmingModule:StartPulse()
     local pulseType = settings.pulseType
 
     if pulseType == "movement" then
-        PulseAnimationModule:PulseMovement(self.groundSkimmingFrame, self.left, self.right, settings.movementAmplitude, pulseSpeed, self.leftBaseX, self.leftBaseY, self.leftBaseAnchor, self.rightBaseX, self.rightBaseY, self.rightBaseAnchor)
+        PulseAnimationModule:PulseMovement(self.thrillOfTheSkiesFrame, self.left, self.right, settings.movementAmplitude, pulseSpeed, self.leftBaseX, self.leftBaseY, self.leftBaseAnchor, self.rightBaseX, self.rightBaseY, self.rightBaseAnchor)
     elseif pulseType == "scale" then
-        PulseAnimationModule:PulseScale(self.groundSkimmingFrame, self.baseScale, settings.scaleMultiplier * self.baseScale, pulseSpeed)
+        PulseAnimationModule:PulseScale(self.thrillOfTheSkiesFrame, self.baseScale, settings.scaleMultiplier * self.baseScale, pulseSpeed)
     elseif pulseType == "alpha" then
-        PulseAnimationModule:PulseAlpha(self.groundSkimmingFrame, settings.alphaReduction, 1, pulseSpeed)
+        PulseAnimationModule:PulseAlpha(self.thrillOfTheSkiesFrame, settings.alphaReduction, 1, pulseSpeed)
     else
         -- No pulse
-        self.groundSkimmingFrame:SetAlpha(1)
-        self.groundSkimmingFrame:Show()
+        self.thrillOfTheSkiesFrame:SetAlpha(1)
+        self.thrillOfTheSkiesFrame:Show()
     end
 end
+
 
 --------------------------------------------------
 -- Stop Pulse Animation
 --------------------------------------------------
-function GroundSkimmingModule:StopPulse()
+function ThrillOfTheSkiesModule:StopPulse()
     if not self.pulsing then return end
     self.pulsing = false
 
     -- Stop all pulsing using PulseAnimationModule
-    PulseAnimationModule:StopPulse(self.groundSkimmingFrame)
+    PulseAnimationModule:StopPulse(self.thrillOfTheSkiesFrame)
 
     -- Reset scale
-    self.groundSkimmingFrame:SetScale(self.baseScale or 1)
-end 
+    self.thrillOfTheSkiesFrame:SetScale(self.baseScale or 1)
+end

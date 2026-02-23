@@ -54,7 +54,6 @@ function SkywardAscentModule:BuildUI()
     --------------------------------------------------
     self.border = CreateFrame("Frame", nil, self.skywardAscentFrame, "BackdropTemplate")
     self.border:SetBackdrop({edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12})
-    self.border:SetBackdropBorderColor(1, 0.82, 0, 1)
     self.border:SetBackdropColor(0,0,0,0)
     self.border:SetFrameLevel(7)
 
@@ -71,21 +70,35 @@ end
 function SkywardAscentModule:Refresh()
     local profile = SkyridingUI.db.profile
 
-    -- Position the frame relative to SpeedBar if enabled, otherwise relative to Vigor
+    -- Set Anchor
     self.anchorTarget = nil
     self:UpdateAnchor()
 
     -- Apply size settings
-    self.skywardAscentFrame:SetSize(profile.modules.optional.widthSkywardAscent, profile.modules.optional.heightSkywardAscent)
-    self.border:SetSize(profile.modules.optional.widthSkywardAscent, profile.modules.optional.heightSkywardAscent)
+    if SkyridingUI.db.profile.modules.optional.useSharedSizeProgressBar then
+        self.skywardAscentFrame:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+        self.border:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+    else
+        self.skywardAscentFrame:SetSize(profile.modules.optional.widthSkywardAscent, profile.modules.optional.heightSkywardAscent)
+        self.border:SetSize(profile.modules.optional.widthSkywardAscent, profile.modules.optional.heightSkywardAscent)
+    end
 
     -- Apply scale
-    self.baseScale = profile.scale or 1
+    self.baseScale = profile.scale
     self.skywardAscentFrame:SetScale(self.baseScale)
 
     -- Apply color
-    local color = profile.modules.optional.colorSkywardAscent or {r=0, g=0.6, b=1, a=1}
+    local color = profile.modules.optional.colorSkywardAscent
     self.statusBar:SetStatusBarColor(color.r, color.g, color.b, color.a)
+    
+    -- Apply border color
+    if SkyridingUI.db.profile.modules.optional.useSharedBorderColorProgressBar then
+        local c = SkyridingUI.db.profile.modules.optional.sharedBorderColorProgressBar
+        self.border:SetBackdropBorderColor(c.r, c.g, c.b, c.a)
+    else
+        local color = profile.modules.optional.colorBorderSkywardAscent
+        self.border:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
+    end
 
      -- Reset end time to ensure bar is hidden until next cast
     self.endTime = 0

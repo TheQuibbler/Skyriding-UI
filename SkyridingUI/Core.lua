@@ -1,84 +1,18 @@
-local addonName, SkyridingUI = ...
+local addonName, SkyridingUI_namespace = ...
 
 --------------------------------------------------
 -- Initialize Addon with AceAddon
 --------------------------------------------------
 -- Create the main addon object using AceAddon-3.0 and AceConsole-3.0
-SkyridingUI = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0")
+local SkyridingUI = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0")
 
 --------------------------------------------------
 -- Initialization
 --------------------------------------------------
 function SkyridingUI:OnInitialize()
     -- Set up saved variables with default profile values
-    self.db = LibStub("AceDB-3.0"):New("SkyridingUI_DB", {
-        profile = {
-            onlyVigorUI = false,
-            posX = 0,
-            posY = 0,
-            scale = 1,
-            draggable = false,
-            updatesPerSecond = 30,
-            hideWhenGrounded = false,
-            debug = false,
-            modules = {
-                vigor = {
-                   enableVigor = true,
-                   showVigorDecor = true,
-                },
-                optional = {
-                    -- Second Wind settings
-                    enableSecondWind = true,
-
-                    -- Speed Bar settings
-                    enableSpeedBar = true,
-                    widthSpeedBar = 220,
-                    heightSpeedBar = 20,
-                    colorSpeedBar = {r = 0, g = 1, b = 0, a = 1},
-                    previewSpeedBar = false,
-                    enableTextSpeedBar = true,
-                    enableUnitSpeedBar = true,
-                    textLocationSpeedBar = "center",  -- Options: "center", "left", "right"
-                    unitSpeedBar = "percent",  -- Options: "percent", "yds", "ms" 
-                    textColorSpeedBar = {r = 1, g = 1, b = 1, a = 1},
-                    thrillMarkerSpeedBar = false,
-                    thrillMarkerColorSpeedBar = {r = 1, g = 0.82, b = 0, a = 1},
-
-                    -- Whirling Surge progress bar
-                    enableWhirlingSurge = true,
-                    widthWhirlingSurge = 220,
-                    heightWhirlingSurge = 15,
-                    colorWhirlingSurge = {r = 0, g = 0.6, b = 1, a = 1},
-                    previewWhirlingSurge = false,
-
-                    -- Skyward Ascent progress bar
-                    enableSkywardAscent = true,
-                    widthSkywardAscent = 220,
-                    heightSkywardAscent = 15,
-                    colorSkywardAscent = {r = 1, g = 0, b = 0, a = 1},
-                    previewSkywardAscent = false,
-
-                    -- Common Thrill of the Skies and Ground Skimming settings
-                    pulseType = "alpha", -- Options: "none", "movement", "scale", "alpha"
-                    pulseSpeed = 6,
-                    preview = false,
-                    movementAmplitude = 3,
-                    scaleMultiplier = 1.2,
-                    alphaReduction = 0.5,
-
-                    -- Thrill of the Skies settings
-                    enableThrillOfTheSkies = true,
-                    colorThrillOfTheSkies = {r=1, g=1, b=1, a=1},
-                    previewThrillOfTheSkies = false,
-
-                    -- Ground Skimming settings
-                    enableGroundSkimming = true,
-                    colorGroundSkimming = {r=1, g=0.85, b=0, a=1},
-                    previewGroundSkimming = false,
-                },
-            }
-        }
-    }, true)
+    local defaults = SkyridingUI_namespace.DefaultProfile or {}
+    self.db = LibStub("AceDB-3.0"):New("SkyridingUI_DB", defaults, true)
 
     -- Force everyone onto the shared "Default" profile so settings carry across characters
     self.db:SetProfile("Default")
@@ -182,7 +116,7 @@ end
 function SkyridingUI:OpenConfig()
     local aceDialog = LibStub("AceConfigDialog-3.0")
     local status = aceDialog:GetStatusTable("Skyriding UI Full")
-    status.width = status.width or 1000
+    status.width = status.width or 1100
     status.height = status.height or 600
     aceDialog:Open("Skyriding UI Full")
 end

@@ -56,8 +56,7 @@ function SpeedBarModule:BuildUI()
     -- Border (overlay)
     --------------------------------------------------
     self.border = CreateFrame("Frame", nil, self.speedBarFrame,  "BackdropTemplate")
-    self.border:SetBackdrop({edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12, insets = { left = 3, right = 3, top = 3, bottom = 3}})
-    self.border:SetBackdropBorderColor(1, 0.82, 0, 1)
+    self.border:SetBackdrop({edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12})
     self.border:SetBackdropColor(0, 0, 0, 0)
     self.border:SetFrameLevel(7)
 
@@ -66,7 +65,6 @@ function SpeedBarModule:BuildUI()
     --------------------------------------------------
     self.thrillOfTheSkiesMarker = self.statusBar:CreateTexture(nil, "OVERLAY")
     self.thrillOfTheSkiesMarker:SetWidth(2)
-    self.thrillOfTheSkiesMarker:SetColorTexture(1, 0.2, 0.2, 0.9)
 
     --------------------------------------------------
     -- Speed Text (centered)
@@ -74,7 +72,6 @@ function SpeedBarModule:BuildUI()
     self.statusText = self.statusBar:CreateFontString(nil, "OVERLAY")
     self.statusText:SetFont(STANDARD_TEXT_FONT, 12, "OUTLINE")
     self.statusText:SetJustifyH("CENTER")
-    self.statusText:SetText("0.0")
 
     --------------------------------------------------
     -- Finalize UI
@@ -98,18 +95,33 @@ function SpeedBarModule:Refresh()
     self.border:SetPoint("BOTTOM", SkyridingUI.modules["VigorModule"].vigorFrame, "TOP", 0, -5)
 
     -- Apply size settings
-    self.speedBarFrame:SetSize(profile.modules.optional.widthSpeedBar, profile.modules.optional.heightSpeedBar)
-    self.border:SetSize(profile.modules.optional.widthSpeedBar, profile.modules.optional.heightSpeedBar)
-    self.thrillOfTheSkiesMarker:SetPoint("TOPLEFT", self.statusBar, "TOPLEFT", 0.58 * profile.modules.optional.widthSpeedBar , 0)
-    self.thrillOfTheSkiesMarker:SetPoint("BOTTOMLEFT", self.statusBar, "BOTTOMLEFT", 0.58 * profile.modules.optional.widthSpeedBar, 0)
+    if SkyridingUI.db.profile.modules.optional.useSharedSizeProgressBar then
+        self.speedBarFrame:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+        self.border:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+    else
+        self.speedBarFrame:SetSize(profile.modules.optional.widthSpeedBar, profile.modules.optional.heightSpeedBar)
+        self.border:SetSize(profile.modules.optional.widthSpeedBar, profile.modules.optional.heightSpeedBar)
+    end
+    local width = self.speedBarFrame:GetWidth()
+    self.thrillOfTheSkiesMarker:SetPoint("TOPLEFT", self.statusBar, "TOPLEFT", 0.58 * width, 0)
+    self.thrillOfTheSkiesMarker:SetPoint("BOTTOMLEFT", self.statusBar, "BOTTOMLEFT", 0.58 * width, 0)
 
     -- Apply scale
-    self.baseScale = profile.scale or 1
+    self.baseScale = profile.scale
     self.speedBarFrame:SetScale(self.baseScale)
 
     -- Apply bar color
     local color = profile.modules.optional.colorSpeedBar
     self.statusBar:SetStatusBarColor(color.r, color.g, color.b, color.a)
+
+    -- Apply border color
+    if SkyridingUI.db.profile.modules.optional.useSharedBorderColorProgressBar then
+        local c = SkyridingUI.db.profile.modules.optional.sharedBorderColorProgressBar
+        self.border:SetBackdropBorderColor(c.r, c.g, c.b, c.a)
+    else
+        local color = profile.modules.optional.colorBorderSpeedBar
+        self.border:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
+    end
 
     -- Apply text color
     local color = profile.modules.optional.textColorSpeedBar

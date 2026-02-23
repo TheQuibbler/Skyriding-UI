@@ -50,7 +50,6 @@ function WhirlingSurgeModule:BuildUI()
     --------------------------------------------------
     self.border = CreateFrame("Frame", nil, self.whirlingSurgeFrame, "BackdropTemplate")
     self.border:SetBackdrop({edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12})
-    self.border:SetBackdropBorderColor(1, 0.82, 0, 1)
     self.border:SetBackdropColor(0,0,0,0)
     self.border:SetFrameLevel(7)
 
@@ -77,16 +76,30 @@ function WhirlingSurgeModule:Refresh()
     end
 
     -- Apply size settings
-    self.whirlingSurgeFrame:SetSize(profile.modules.optional.widthWhirlingSurge, profile.modules.optional.heightWhirlingSurge)
-    self.border:SetSize(profile.modules.optional.widthWhirlingSurge, profile.modules.optional.heightWhirlingSurge)
+    if SkyridingUI.db.profile.modules.optional.useSharedSizeProgressBar then
+        self.whirlingSurgeFrame:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+        self.border:SetSize(profile.modules.optional.sharedWidthProgressBar, profile.modules.optional.sharedHeightProgressBar)
+    else
+        self.whirlingSurgeFrame:SetSize(profile.modules.optional.widthWhirlingSurge, profile.modules.optional.heightWhirlingSurge)
+        self.border:SetSize(profile.modules.optional.widthWhirlingSurge, profile.modules.optional.heightWhirlingSurge)
+    end
 
     -- Apply scale
-    self.baseScale = profile.scale or 1
+    self.baseScale = profile.scale
     self.whirlingSurgeFrame:SetScale(self.baseScale)
 
     -- Apply color
-    local color = profile.modules.optional.colorWhirlingSurge or {r=0, g=0.6, b=1, a=1}
+    local color = profile.modules.optional.colorWhirlingSurge
     self.statusBar:SetStatusBarColor(color.r, color.g, color.b, color.a)
+    
+    -- Apply border color
+    if SkyridingUI.db.profile.modules.optional.useSharedBorderColorProgressBar then
+        local c = SkyridingUI.db.profile.modules.optional.sharedBorderColorProgressBar
+        self.border:SetBackdropBorderColor(c.r, c.g, c.b, c.a)
+    else
+        local color = profile.modules.optional.colorBorderWhirlingSurge
+        self.border:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
+    end
 end
 
 --------------------------------------------------
